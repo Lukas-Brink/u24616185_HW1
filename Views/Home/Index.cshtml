@@ -1,0 +1,92 @@
+﻿@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Home";
+}
+
+<style>
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .pulse {
+        animation: pulse 1.8s infinite;
+    }
+</style>
+
+<div class="container py-5">
+    <!-- Booking Section -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary mb-3">Need Medical Assistance?</h1>
+        <p class="lead text-muted mb-4">
+            Book an ambulance ride easily with RescueBus – safe, professional, and fast emergency transport at your fingertips.
+        </p>
+        <button class="btn btn-outline-primary btn-lg px-4 py-2 rounded-4"
+                onclick="location.href='@Url.Action("SelectService", "Home")'">
+            🚑 Book an Ambulance
+        </button>
+    </div>
+
+    <!-- SOS Section with Pulse -->
+    <div class="bg-light p-5 rounded shadow text-center">
+        <h2 class="fw-bold text-danger mb-3">Emergency? Press SOS Now</h2>
+        <p class="text-muted mb-4">
+            If you are in danger or need urgent medical attention, click the button below to make an instant emergency booking.
+        </p>
+        <button id="sosBtn" class="btn btn-danger btn-lg px-5 py-3 fs-3 rounded-5 shadow pulse">
+            🚨 SOS
+        </button>
+    </div>
+</div>
+
+<script>
+    const drivers = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Drivers));
+    const vehicles = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Vehicles));
+
+    document.getElementById('sosBtn').addEventListener('click', function() {
+        const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
+        const randomVehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
+
+        const now = new Date();
+
+        // Build SOS booking using the full booking model
+        const sosBooking = {
+            id: crypto.randomUUID(),
+            fullName: "SOS Patient",                // Placeholder name
+            patientPhone: "",                       // No patient phone
+            phone: randomDriver.PhoneNumber,       // Driver's phone (or you can leave empty if preferred)
+            pickupTime: now.toTimeString().slice(0, 5),  // HH:mm format
+            pickupAddress: "Emergency SOS Location",
+            reason: "Emergency SOS",
+            vehicle: randomVehicle.Type + " - " + randomVehicle.RegistrationNumber,
+            driver: randomDriver.FirstName + " " + randomDriver.LastName,
+            driverPhone: randomDriver.PhoneNumber,
+            dateBooked: now.toLocaleString(),
+            isSOS: true                            // Mark this as SOS
+        };
+
+        // Save latest booking for confirmation page
+        localStorage.setItem("latestBooking", JSON.stringify(sosBooking));
+
+        // Append to booking history
+        const history = JSON.parse(localStorage.getItem("bookingHistory")) || [];
+        history.push(sosBooking);
+        localStorage.setItem("bookingHistory", JSON.stringify(history));
+
+        // Save selected booking id so BookingConfirmed loads this booking
+        localStorage.setItem("selectedBookingId", sosBooking.id);
+
+        // Redirect to confirmation page
+        window.location.href = '@Url.Action("BookingConfirmed", "Home")';
+    });
+</script>
+

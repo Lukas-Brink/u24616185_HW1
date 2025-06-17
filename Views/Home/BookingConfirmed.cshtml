@@ -1,0 +1,133 @@
+﻿@{
+    ViewData["Title"] = "Booking Confirmed";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Booking Confirmed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .confirmed-container {
+            max-width: 800px;
+            margin: 60px auto;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .check-icon {
+            font-size: 50px;
+            color: #6c63ff;
+        }
+
+        .section-box {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .driver-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .icon-large {
+            font-size: 40px;
+            color: #6c63ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container confirmed-container text-center">
+        <div class="check-icon mb-3">✔️</div>
+        <h2 class="fw-bold text-primary mb-4">Booking Confirmed</h2>
+
+        <!-- Booking Details -->
+        <div class="section-box text-start">
+            <h5 class="section-title">Booking Details</h5>
+            <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
+            <p><strong>Date Booked:</strong> <span id="dateBooked"></span></p>
+            <p><strong>Pick-Up Time:</strong> <span id="pickupTime"></span></p>
+            <p><strong>Pick-Up Address:</strong> <span id="pickupAddress"></span></p>
+            <p id="patientPhoneContainer"><strong>Patient Phone:</strong> <span id="patientPhone"></span></p>
+        </div>
+
+        <!-- Driver Details -->
+        <div class="section-box text-start d-flex align-items-center">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg"
+                 class="driver-photo me-3"
+                 alt="Driver Photo" />
+            <div>
+                <h5 class="section-title mb-2">Driver Details</h5>
+                <p class="mb-1"><strong>Driver Name:</strong> <span id="driverName"></span></p>
+                <p class="mb-1"><strong>Driver Phone:</strong> <span id="driverPhone"></span></p>
+            </div>
+        </div>
+
+        <!-- Ambulance Details -->
+        <div class="section-box text-start d-flex align-items-center">
+            <div class="icon-large me-3">🚑</div>
+            <div>
+                <h5 class="section-title mb-2">Ambulance Details</h5>
+                <p class="mb-1"><strong>Ambulance:</strong> <span id="ambulance"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const selectedId = localStorage.getItem("selectedBookingId");
+        const bookingHistory = JSON.parse(localStorage.getItem("bookingHistory")) || [];
+
+        let booking = bookingHistory.find((b) => b.id === selectedId);
+
+        if (!booking) {
+            booking = JSON.parse(localStorage.getItem("latestBooking"));
+        }
+
+        if (booking) {
+            document.getElementById("bookingId").textContent = booking.id || "-";
+            document.getElementById("dateBooked").textContent = booking.dateBooked || "-";
+            document.getElementById("pickupTime").textContent = booking.pickupTime || "-";
+            document.getElementById("pickupAddress").textContent = booking.pickupAddress || "-";
+
+            // Conditional display of Patient Phone
+            if (booking.isSOS) {
+                // Hide the entire patient phone paragraph
+                document.getElementById("patientPhoneContainer").style.display = "none";
+            } else {
+                document.getElementById("patientPhone").textContent = booking.patientPhone || "-";
+                document.getElementById("patientPhoneContainer").style.display = "block";
+            }
+
+            document.getElementById("driverName").textContent = booking.driver || "-";
+            document.getElementById("driverPhone").textContent = booking.driverPhone || "-";
+            document.getElementById("ambulance").textContent = booking.vehicle || "-";
+        } else {
+            document.querySelector(".confirmed-container").innerHTML = `
+                    <div class="text-center text-danger">
+                        <h4>No booking data found</h4>
+                        <p>Please go back and complete a booking.</p>
+                    </div>`;
+        }
+    </script>
+</body>
+</html>

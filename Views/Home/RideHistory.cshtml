@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "Ride History";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ride History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #eee;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .ride-container {
+            max-width: 800px;
+            margin: 60px auto;
+        }
+
+        .ride-entry {
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #007BFF;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .ride-entry:hover {
+                transform: scale(1.01);
+                background-color: #f8f9fa;
+            }
+
+            .ride-entry.sos {
+                border-color: #FF4C4C;
+                color: #FF4C4C;
+            }
+
+        .header-icon {
+            font-size: 48px;
+            color: #6c63ff;
+        }
+
+        .ride-date {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .arrow {
+            float: right;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container ride-container text-center">
+        <div class="mb-5">
+            <div class="header-icon">🕒</div>
+            <h2 class="fw-bold text-primary">Ride History</h2>
+        </div>
+
+        <div id="historyList"></div>
+    </div>
+
+    <script>
+        const historyList = document.getElementById("historyList");
+        const history = JSON.parse(localStorage.getItem("bookingHistory")) || [];
+
+        if (history.length === 0) {
+            historyList.innerHTML = "<p class='text-muted'>No bookings yet.</p>";
+        } else {
+            history.reverse().forEach(b => {
+                const card = document.createElement("div");
+                card.className = "card ride-entry text-start" + (b.isSOS ? " sos" : "");
+
+                const vehicleType = (b.vehicle || "").split(" - ")[0] || "Unknown";
+
+                card.innerHTML = `
+                        <div class="ride-date">
+                            ${b.dateBooked || "-"} ${b.isSOS ? "– S.O.S." : ""} <span class="arrow">›</span>
+                        </div>
+                        <p><strong>Booking ID:</strong> ${b.id || "-"}</p>
+                        <p><strong>Driver Name:</strong> ${b.driver || "-"}</p>
+                        <p><strong>Ambulance Type:</strong> ${vehicleType}</p>
+                        <p><strong>Pick-Up Address:</strong> ${b.pickupAddress || "-"}</p>
+                    `;
+
+                card.addEventListener("click", () => {
+                    localStorage.setItem("selectedBookingId", b.id);
+                    window.location.href = "/Home/BookingConfirmed";
+                });
+
+                historyList.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+﻿@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Driver and Vehicle Management";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+<style>
+    .section {
+        margin-top: 2rem;
+    }
+
+    .table img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="container py-5">
+    <h1 class="mb-4 text-center">
+        <img src="~/Images/gear.svg" style="width:32px" />
+        Driver and Vehicle Management
+    </h1>
+
+    <!-- Drivers Section -->
+    <div class="section">
+        <div class="d-flex mb-3">
+            <input id="searchName" class="form-control me-2" placeholder="Driver First Name" />
+            <select id="searchService" class="form-select me-2">
+                <option value="">All Services</option>
+            </select>
+            <button class="btn btn-success me-2" onclick="renderDrivers()">Search</button>
+            <button class="btn btn-primary" onclick="createDriver()">Create Driver</button>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Phone</th>
+                    <th>Service</th>
+                    <th>Controls</th>
+                </tr>
+            </thead>
+            <tbody id="driversTable"></tbody>
+        </table>
+    </div>
+
+    <!-- Vehicles Section -->
+    <div class="section">
+        <div class="d-flex mb-3">
+            <button class="btn btn-primary me-2" onclick="createVehicle()">Create Vehicle</button>
+            <button class="btn btn-outline-secondary" onclick="exportVehicles()">Export Vehicles</button>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Type</th>
+                    <th>Registration</th>
+                    <th>Service</th>
+                    <th>Controls</th>
+                </tr>
+            </thead>
+            <tbody id="vehiclesTable"></tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function createDriver() {
+            if (editingDriverIndex !== null) {
+                alert("Finish editing the current driver first!");
+                return;
+            }
+
+            const newDriver = {
+                ImageUrl: '',
+                FirstName: '',
+                LastName: '',
+                PhoneNumber: '',
+                ServiceType: services[0]
+            };
+
+            // Add new driver at the beginning of the array
+            drivers.unshift(newDriver);
+
+            // Editing index is 0 since new item is at the front
+            editingDriverIndex = 0;
+            renderDrivers();
+        }
+
+
+        function createVehicle() {
+            if (editingVehicleIndex !== null) {
+                alert("Finish editing the current vehicle first!");
+                return;
+            }
+
+            const newVehicle = {
+                ImageUrl: '',
+                Type: '',
+                RegistrationNumber: '',
+                ServiceType: services[0]
+            };
+
+            // Add new vehicle at the beginning of the array
+            vehicles.unshift(newVehicle);
+
+            // Editing index is 0 since new item is at the front
+            editingVehicleIndex = 0;
+            renderVehicles();
+        }
+
+
+const STORAGE_DRIVERS  = 'drv_mgmt_drivers';
+const STORAGE_VEHICLES = 'drv_mgmt_vehicles';
+
+let drivers  = JSON.parse(localStorage.getItem(STORAGE_DRIVERS))  ||
+               @Html.Raw(JsonConvert.SerializeObject(ViewBag.InitialDrivers));
+let vehicles = JSON.parse(localStorage.getItem(STORAGE_VEHICLES)) ||
+               @Html.Raw(JsonConvert.SerializeObject(ViewBag.InitialVehicles));
+const services = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ServiceTypes));
+
+const svcSel = document.getElementById('searchService');
+services.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.Name; opt.textContent = s.Name;
+    svcSel.appendChild(opt);
+});
+
+function saveDrivers() {
+    localStorage.setItem(STORAGE_DRIVERS, JSON.stringify(drivers));
+}
+function saveVehicles() {
+    localStorage.setItem(STORAGE_VEHICLES, JSON.stringify(vehicles));
+}
+
+let editingDriverIndex = null;
+let editingVehicleIndex = null;
+
+        function renderDrivers() {
+            const nameFilter = document.getElementById('searchName').value.toLowerCase();
+            const svcFilter = document.getElementById('searchService').value;
+            const tbody = document.getElementById('driversTable');
+            tbody.innerHTML = '';
+
+            const filteredDrivers = drivers
+                .map((d, i) => ({ driver: d, index: i }))
+                .filter(({ driver }) => (!nameFilter || driver.FirstName.toLowerCase().includes(nameFilter)))
+                .filter(({ driver }) => (!svcFilter || driver.ServiceType.Name === svcFilter));
+
+            filteredDrivers.forEach(({ driver: d, index: i }) => {
+                const tr = document.createElement('tr');
+
+                if (editingDriverIndex === i) {
+                    // Editable row
+                    tr.innerHTML = `
+                <td><input type="text" class="form-control form-control-sm" value="${d.ImageUrl}"/></td>
+                <td><input type="text" class="form-control form-control-sm" value="${d.FirstName}"/></td>
+                <td><input type="text" class="form-control form-control-sm" value="${d.LastName}"/></td>
+                <td><input type="text" class="form-control form-control-sm" value="${d.PhoneNumber}"/></td>
+                <td>
+                  <select class="form-select form-select-sm">
+                    ${services.map(s => `<option value="${s.Name}" ${s.Name === d.ServiceType.Name ? 'selected' : ''}>${s.Name}</option>`).join('')}
+                  </select>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-success me-1" onclick="confirmDriver(${i}, this)">Confirm</button>
+                  <button class="btn btn-sm btn-danger" onclick="cancelEditDriver()">Cancel</button>
+                </td>`;
+                } else {
+                    // Normal row
+                    tr.innerHTML = `
+                <td><img src="${d.ImageUrl}" alt="Driver Image" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"/></td>
+                <td>${d.FirstName}</td>
+                <td>${d.LastName}</td>
+                <td>${d.PhoneNumber}</td>
+                <td>${d.ServiceType.Name}</td>
+                <td>
+                  <button class="btn btn-sm btn-warning me-1" onclick="editDriver(${i})">Edit</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteDriver(${i})">Delete</button>
+                </td>`;
+                }
+
+                tbody.appendChild(tr);
+            });
+        }
+
+
+
+function renderVehicles() {
+    const tbody = document.getElementById('vehiclesTable');
+    tbody.innerHTML = '';
+
+    vehicles.forEach((v, idx) => {
+        const tr = document.createElement('tr');
+
+        if (editingVehicleIndex === idx) {
+            tr.innerHTML = `
+                <td><input type="text" class="form-control form-control-sm" value="${v.ImageUrl}"/></td>
+                <td><input type="text" class="form-control form-control-sm" value="${v.Type}"/></td>
+                <td><input type="text" class="form-control form-control-sm" value="${v.RegistrationNumber}"/></td>
+                <td>
+                  <select class="form-select form-select-sm">
+                    ${services.map(s => `<option value="${s.Name}" ${s.Name === v.ServiceType.Name ? 'selected' : ''}>${s.Name}</option>`).join('')}
+                  </select>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-success me-1" onclick="confirmVehicle(${idx}, this)">Confirm</button>
+                  <button class="btn btn-sm btn-danger" onclick="cancelEditVehicle()">Cancel</button>
+                </td>`;
+        } else {
+            tr.innerHTML = `
+                <td><img src="${v.ImageUrl}" alt="Vehicle Image" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"/></td>
+                <td>${v.Type}</td>
+                <td>${v.RegistrationNumber}</td>
+                <td>${v.ServiceType.Name}</td>
+                <td>
+                  <button class="btn btn-sm btn-warning me-1" onclick="editVehicle(${idx})">Edit</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteVehicle(${idx})">Delete</button>
+                </td>`;
+        }
+
+        tbody.appendChild(tr);
+    });
+}
+
+// Drivers: Start editing
+        function editDriver(i) {
+            if (editingDriverIndex !== null) {
+                alert("Finish editing the current driver first!");
+                return;
+            }
+            editingDriverIndex = i;  // i is original index passed from renderDrivers
+            renderDrivers();
+        }
+
+
+
+// Drivers: Confirm changes
+function confirmDriver(i, btn) {
+    const tr = btn.closest('tr');
+    const inputs = tr.querySelectorAll('input, select');
+
+    // inputs order: ImageUrl, FirstName, LastName, PhoneNumber, ServiceType select
+    const [imgInput, firstNameInput, lastNameInput, phoneInput, svcSelect] = inputs;
+
+    // Validate required fields (FirstName at least)
+    if (!firstNameInput.value.trim()) {
+        alert("First Name cannot be empty.");
+        return;
+    }
+
+    const svc = services.find(s => s.Name === svcSelect.value);
+    if (!svc) {
+        alert("Invalid service selected.");
+        return;
+    }
+
+    drivers[i].ImageUrl = imgInput.value.trim();
+    drivers[i].FirstName = firstNameInput.value.trim();
+    drivers[i].LastName = lastNameInput.value.trim();
+    drivers[i].PhoneNumber = phoneInput.value.trim();
+    drivers[i].ServiceType = svc;
+
+    saveDrivers();
+    editingDriverIndex = null;
+    renderDrivers();
+}
+
+// Drivers: Cancel editing
+        function cancelEditDriver() {
+            if (editingDriverIndex === 0 && isNewDriver(drivers[0])) {
+                drivers.shift(); // remove the new driver from the front
+                saveDrivers();
+            }
+            editingDriverIndex = null;
+            renderDrivers();
+        }
+
+        function isNewDriver(driver) {
+            // A simple check — tweak this if needed
+            return !driver.FirstName && !driver.LastName && !driver.PhoneNumber && !driver.ImageUrl;
+        }
+
+
+// Vehicles: Start editing
+function editVehicle(i) {
+    if (editingVehicleIndex !== null) {
+        alert("Finish editing the current vehicle first!");
+        return;
+    }
+    editingVehicleIndex = i;
+    renderVehicles();
+}
+
+// Vehicles: Confirm changes
+function confirmVehicle(i, btn) {
+    const tr = btn.closest('tr');
+    const inputs = tr.querySelectorAll('input, select');
+
+    // inputs order: ImageUrl, Type, RegistrationNumber, ServiceType select
+    const [imgInput, typeInput, regInput, svcSelect] = inputs;
+
+    if (!typeInput.value.trim()) {
+        alert("Vehicle Type cannot be empty.");
+        return;
+    }
+
+    const svc = services.find(s => s.Name === svcSelect.value);
+    if (!svc) {
+        alert("Invalid service selected.");
+        return;
+    }
+
+    vehicles[i].ImageUrl = imgInput.value.trim();
+    vehicles[i].Type = typeInput.value.trim();
+    vehicles[i].RegistrationNumber = regInput.value.trim();
+    vehicles[i].ServiceType = svc;
+
+    saveVehicles();
+    editingVehicleIndex = null;
+    renderVehicles();
+}
+
+// Vehicles: Cancel editing
+        function cancelEditVehicle() {
+            if (editingVehicleIndex === 0 && isNewVehicle(vehicles[0])) {
+                vehicles.shift(); // remove the new vehicle from the front
+                saveVehicles();
+            }
+            editingVehicleIndex = null;
+            renderVehicles();
+        }
+
+        function isNewVehicle(vehicle) {
+            return !vehicle.Type && !vehicle.RegistrationNumber && !vehicle.ImageUrl;
+        }
+
+
+// Existing delete functions kept as is
+function deleteDriver(i) {
+    if (!confirm("Delete this driver?")) return;
+    if (editingDriverIndex === i) editingDriverIndex = null;
+    drivers.splice(i,1); saveDrivers(); renderDrivers();
+}
+
+function deleteVehicle(i) {
+    if (!confirm("Delete this vehicle?")) return;
+    if (editingVehicleIndex === i) editingVehicleIndex = null;
+    vehicles.splice(i,1); saveVehicles(); renderVehicles();
+}
+
+// Initial render
+renderDrivers();
+renderVehicles();
+
+    </script>
+}

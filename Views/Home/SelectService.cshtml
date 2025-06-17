@@ -1,0 +1,60 @@
+﻿@model List<u24616185_HW1.Models.ServiceType>
+
+@{
+    ViewData["Title"] = "Select a Service";
+}
+
+<style>
+    /* Make images fill more of the card width with max height and rounded corners */
+    .card-body img {
+        width: 100%; /* fill card width */
+        max-height: 180px; /* limit height */
+        object-fit: cover; /* crop nicely */
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Darker card background and subtle shadow */
+    .card {
+        background-color: #f8f9fa; /* slightly darker than white */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+</style>
+
+<div class="container py-5">
+    <!-- Header section -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary">Select a service...</h2>
+        <p class="text-muted">
+            Lorem ipsum dolor sit amet consectetur adipiscing elit semper dalar elementum tempus hac tellus libero accumsan.
+        </p>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="row g-4">
+        @foreach (var service in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body text-center">
+                        <img src="@service.ImageUrl" alt="@service.Name" class="img-fluid" />
+                        <h5 class="fw-bold text-dark">@service.Name</h5>
+                        <p class="text-muted small">@service.Description</p>
+                        <button class="btn btn-outline-primary mt-2"
+                                onclick="location.href='@Url.Action("BookingForm", "Home", new { serviceName = service.Name })'">
+                            Select
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

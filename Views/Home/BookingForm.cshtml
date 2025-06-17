@@ -1,0 +1,161 @@
+﻿@model u24616185_HW1.ViewModels.BookingFormViewModel
+@{
+    ViewData["Title"] = "Booking Form";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Booking Form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #f2f2f2;
+        }
+
+        .booking-card {
+            max-width: 800px;
+            margin: 50px auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            border-radius: 20px;
+        }
+
+        .form-control,
+        .btn {
+            border-radius: 10px;
+        }
+
+        .form-group select {
+            appearance: none;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23666' height='24' viewBox='0 0 24 24' width='24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E") no-repeat right 0.75rem center/1.5em;
+            padding-right: 2.5rem;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card booking-card p-4">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/ambulance.png" alt="Ambulance Icon" />
+                    <h3 class="mt-2">@Model.SelectedServiceName</h3>
+                </div>
+
+                <form id="bookingForm">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="fullName">Full Name*</label>
+                            <input type="text" class="form-control" id="fullName" placeholder="Name Surname" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="phone">Phone*</label>
+                            <input type="tel" class="form-control" id="phone" placeholder="+27 00 000 0000" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="pickupTime">Pick-Up Time*</label>
+                            <input type="time" class="form-control" id="pickupTime" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="reason">Reason*</label>
+                            <select class="form-control" id="reason" required>
+                                <option value="">Select Reason</option>
+                                <option>Accident</option>
+                                <option>Medical Emergency</option>
+                                <option>Transport</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="vehicle">Vehicle*</label>
+                            <select class="form-control" id="vehicle" required>
+                                <option value="">Select Vehicle</option>
+                                @foreach (var vehicle in Model.Vehicles)
+                                {
+                                    <option>@vehicle.Type - @vehicle.RegistrationNumber</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="driver">Driver*</label>
+                            <select id="driver" name="driver" class="form-control" required>
+                                <option disabled selected value="">Select a driver</option>
+                                @foreach (var driver in ViewBag.Drivers)
+                                {
+                                    <option value="@driver.FirstName @driver.LastName" data-phone="@driver.PhoneNumber">
+                                        @driver.FirstName @driver.LastName
+                                    </option>
+                                }
+                            </select>
+                            <input type="hidden" id="driverPhone" name="driverPhone" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pickupAddress">Pick-Up Address*</label>
+                        <textarea class="form-control" id="pickupAddress" rows="3" placeholder="Please type your address here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block mt-3">BOOK AMBULANCE</button>
+                    <p class="text-muted text-center mt-2">Fields marked with * are required.</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const driverSelect = document.getElementById("driver");
+        const driverPhoneInput = document.getElementById("driverPhone");
+
+        driverSelect.addEventListener("change", function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const phone = selectedOption.getAttribute("data-phone") || "";
+            driverPhoneInput.value = phone;
+        });
+
+        document.getElementById("bookingForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const driverOption = driverSelect.options[driverSelect.selectedIndex];
+            const driverPhone = driverOption.getAttribute("data-phone") || "";
+
+            const booking = {
+                id: crypto.randomUUID(),
+                fullName: document.getElementById("fullName").value,
+                patientPhone: document.getElementById("phone").value,
+                phone: document.getElementById("phone").value,
+                pickupTime: document.getElementById("pickupTime").value,
+                pickupAddress: document.getElementById("pickupAddress").value,
+                reason: document.getElementById("reason").value,
+                vehicle: document.getElementById("vehicle").value,
+                driver: driverOption.value,
+                driverPhone: driverPhone,
+                dateBooked: new Date().toLocaleString()
+            };
+
+            // Save this new booking as latestBooking
+            localStorage.setItem("latestBooking", JSON.stringify(booking));
+
+            // Append booking to bookingHistory array in localStorage
+            const history = JSON.parse(localStorage.getItem("bookingHistory")) || [];
+            history.push(booking);
+            localStorage.setItem("bookingHistory", JSON.stringify(history));
+
+            // *** Key change here: Save the booking id in selectedBookingId so BookingConfirmed picks this booking ***
+            localStorage.setItem("selectedBookingId", booking.id);
+
+            // Redirect to BookingConfirmed page
+            window.location.href = "/Home/BookingConfirmed";
+        });
+    </script>
+</body>
+</html>
