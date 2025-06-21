@@ -61,7 +61,7 @@
         <div class="check-icon mb-3">✔️</div>
         <h2 class="fw-bold text-primary mb-4">Booking Confirmed</h2>
 
-        <!-- Booking Details -->
+        <!--booking details-->
         <div class="section-box text-start">
             <h5 class="section-title">Booking Details</h5>
             <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
@@ -71,7 +71,7 @@
             <p id="patientPhoneContainer"><strong>Patient Phone:</strong> <span id="patientPhone"></span></p>
         </div>
 
-        <!-- Driver Details -->
+        <!--driver details-->
         <div class="section-box text-start d-flex align-items-center">
             <img id="driverPhoto"
                  class="driver-photo me-3"
@@ -83,7 +83,7 @@
             </div>
         </div>
 
-        <!-- Ambulance Details -->
+        <!--ambulance details-->
         <div class="section-box text-start d-flex align-items-center">
             <div class="icon-large me-3">🚑</div>
             <div>
@@ -109,7 +109,7 @@
             document.getElementById("pickupTime").textContent = booking.pickupTime || "-";
             document.getElementById("pickupAddress").textContent = booking.pickupAddress || "-";
 
-            // Hide phone for SOS bookings if needed
+            //no phone number for SOS bookings
             if (booking.isSOS) {
                 document.getElementById("patientPhoneContainer").style.display = "none";
             } else {
@@ -120,17 +120,17 @@
             document.getElementById("driverName").textContent = booking.driver || "-";
             document.getElementById("driverPhone").textContent = booking.driverPhone || "-";
 
-            // Display driver image, fallback to placeholder if not available
             const photo = document.getElementById("driverPhoto");
-            photo.src = booking.driverImage || "https://via.placeholder.com/80?text=Driver";
+            photo.src = booking.driverImage;
+
 
             document.getElementById("ambulance").textContent = booking.vehicle || "-";
         } else {
             document.querySelector(".confirmed-container").innerHTML = `
-                    <div class="text-center text-danger">
-                        <h4>No booking data found</h4>
-                        <p>Please go back and complete a booking.</p>
-                    </div>`;
+                        <div class="text-center text-danger">
+                            <h4>No booking data found</h4>
+                            <p>Please go back and complete a booking.</p>
+                        </div>`;
         }
     </script>
 </body>

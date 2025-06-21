@@ -24,7 +24,6 @@
 </style>
 
 <div class="container py-5">
-    <!-- Booking Section -->
     <div class="text-center mb-5">
         <h1 class="fw-bold text-primary mb-3">Need Medical Assistance?</h1>
         <p class="lead text-muted mb-4">
@@ -36,7 +35,6 @@
         </button>
     </div>
 
-    <!-- SOS Section with Pulse -->
     <div class="bg-light p-5 rounded shadow text-center">
         <h2 class="fw-bold text-danger mb-3">Emergency? Press SOS Now</h2>
         <p class="text-muted mb-4">
@@ -58,7 +56,7 @@
 
         const now = new Date();
 
-        // Build SOS booking using the full booking model
+        //make SOS booking using Booking model
         const sosBooking = {
             id: crypto.randomUUID(),
             fullName: "SOS Patient",
@@ -76,18 +74,17 @@
         };
 
 
-        // Save latest booking for confirmation page
+        //latest booking for booking confirmed page
         localStorage.setItem("latestBooking", JSON.stringify(sosBooking));
 
-        // Append to booking history
+        //add to booking history
         const history = JSON.parse(localStorage.getItem("bookingHistory")) || [];
         history.push(sosBooking);
         localStorage.setItem("bookingHistory", JSON.stringify(history));
 
-        // Save selected booking id so BookingConfirmed loads this booking
+        //save BookingID so you can load it again from bookingconfirmed
         localStorage.setItem("selectedBookingId", sosBooking.id);
 
-        // Redirect to confirmation page
         window.location.href = '@Url.Action("BookingConfirmed", "Home")';
     });
 </script>

@@ -78,14 +78,14 @@
                 const vehicleType = (b.vehicle || "").split(" - ")[0] || "Unknown";
 
                 card.innerHTML = `
-                        <div class="ride-date">
-                            ${b.dateBooked || "-"} ${b.isSOS ? "– S.O.S." : ""} <span class="arrow">›</span>
-                        </div>
-                        <p><strong>Booking ID:</strong> ${b.id || "-"}</p>
-                        <p><strong>Driver Name:</strong> ${b.driver || "-"}</p>
-                        <p><strong>Ambulance Type:</strong> ${vehicleType}</p>
-                        <p><strong>Pick-Up Address:</strong> ${b.pickupAddress || "-"}</p>
-                    `;
+                                <div class="ride-date">
+                                    ${b.dateBooked || "-"} ${b.isSOS ? "– S.O.S." : ""} <span class="arrow">›</span>
+                                </div>
+                                <p><strong>Booking ID:</strong> ${b.id || "-"}</p>
+                                <p><strong>Driver Name:</strong> ${b.driver || "-"}</p>
+                                <p><strong>Ambulance Type:</strong> ${vehicleType}</p>
+                                <p><strong>Pick-Up Address:</strong> ${b.pickupAddress || "-"}</p>
+                            `;
 
                 card.addEventListener("click", () => {
                     localStorage.setItem("selectedBookingId", b.id);

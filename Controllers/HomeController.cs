@@ -7,7 +7,6 @@ namespace u24616185_HW1.Controllers
 {
     public class HomeController : Controller
     {
-        // Landing page showing all drivers and vehicles
         public ActionResult Index()
         {
             ViewBag.Drivers = Data.Drivers;
@@ -15,10 +14,10 @@ namespace u24616185_HW1.Controllers
             return View();
         }
 
-        // Page to select a service type
+
         public ActionResult SelectService() => View(Data.ServiceTypes);
 
-        // Booking form filtered by the selected service
+
         public ActionResult BookingForm(string serviceName)
         {
             if (string.IsNullOrEmpty(serviceName))
@@ -38,13 +37,13 @@ namespace u24616185_HW1.Controllers
             return View(viewModel);
         }
 
-        // Booking confirmation page (data via localStorage only)
+
         public ActionResult BookingConfirmed() => View();
 
-        // Ride history page (data via localStorage only)
+
         public ActionResult RideHistory() => View();
 
-        // Admin manage page with initial data loaded
+
         public ActionResult Manage()
         {
             ViewBag.InitialDrivers = Data.Drivers;
