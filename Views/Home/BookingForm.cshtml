@@ -8,6 +8,7 @@
     <meta charset="UTF-8" />
     <title>Booking Form</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         body {
             background-color: #f2f2f2;
@@ -35,6 +36,16 @@
             padding-right: 2.5rem;
             background-color: #fff;
         }
+
+        #pickupTime.flatpickr-input {
+            background-color: white !important;
+            color: #212529 !important;
+            opacity: 1 !important;
+        }
+
+        #pickupTime::placeholder {
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
@@ -61,7 +72,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="pickupTime">Pick-Up Time*</label>
-                            <input type="time" class="form-control" id="pickupTime" required />
+                            <input type="text" class="form-control" id="pickupTime" placeholder="HH:MM" required />
                         </div>
                         <div class="form-group col-md-6">
                             <label for="reason">Reason*</label>
@@ -91,12 +102,15 @@
                                 <option disabled selected value="">Select a driver</option>
                                 @foreach (var driver in ViewBag.Drivers)
                                 {
-                                    <option value="@driver.FirstName @driver.LastName" data-phone="@driver.PhoneNumber">
+                                    <option value="@driver.FirstName @driver.LastName"
+                                            data-phone="@driver.PhoneNumber"
+                                            data-image="@driver.ImageUrl">
                                         @driver.FirstName @driver.LastName
                                     </option>
                                 }
                             </select>
                             <input type="hidden" id="driverPhone" name="driverPhone" />
+                            <input type="hidden" id="driverImage" name="driverImage" />
                         </div>
                     </div>
 
@@ -112,14 +126,23 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+        flatpickr("#pickupTime", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true
+        });
+
         const driverSelect = document.getElementById("driver");
         const driverPhoneInput = document.getElementById("driverPhone");
+        const driverImageInput = document.getElementById("driverImage");
 
         driverSelect.addEventListener("change", function () {
             const selectedOption = this.options[this.selectedIndex];
-            const phone = selectedOption.getAttribute("data-phone") || "";
-            driverPhoneInput.value = phone;
+            driverPhoneInput.value = selectedOption.getAttribute("data-phone") || "";
+            driverImageInput.value = selectedOption.getAttribute("data-image") || "";
         });
 
         document.getElementById("bookingForm").addEventListener("submit", function (e) {
@@ -127,6 +150,7 @@
 
             const driverOption = driverSelect.options[driverSelect.selectedIndex];
             const driverPhone = driverOption.getAttribute("data-phone") || "";
+            const driverImage = driverOption.getAttribute("data-image") || "";
 
             const booking = {
                 id: crypto.randomUUID(),
@@ -139,21 +163,17 @@
                 vehicle: document.getElementById("vehicle").value,
                 driver: driverOption.value,
                 driverPhone: driverPhone,
+                driverImage: driverImage,
                 dateBooked: new Date().toLocaleString()
             };
 
-            // Save this new booking as latestBooking
             localStorage.setItem("latestBooking", JSON.stringify(booking));
 
-            // Append booking to bookingHistory array in localStorage
             const history = JSON.parse(localStorage.getItem("bookingHistory")) || [];
             history.push(booking);
             localStorage.setItem("bookingHistory", JSON.stringify(history));
-
-            // *** Key change here: Save the booking id in selectedBookingId so BookingConfirmed picks this booking ***
             localStorage.setItem("selectedBookingId", booking.id);
 
-            // Redirect to BookingConfirmed page
             window.location.href = "/Home/BookingConfirmed";
         });
     </script>

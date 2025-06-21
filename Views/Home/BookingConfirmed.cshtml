@@ -73,7 +73,7 @@
 
         <!-- Driver Details -->
         <div class="section-box text-start d-flex align-items-center">
-            <img src="https://randomuser.me/api/portraits/men/32.jpg"
+            <img id="driverPhoto"
                  class="driver-photo me-3"
                  alt="Driver Photo" />
             <div>
@@ -109,9 +109,8 @@
             document.getElementById("pickupTime").textContent = booking.pickupTime || "-";
             document.getElementById("pickupAddress").textContent = booking.pickupAddress || "-";
 
-            // Conditional display of Patient Phone
+            // Hide phone for SOS bookings if needed
             if (booking.isSOS) {
-                // Hide the entire patient phone paragraph
                 document.getElementById("patientPhoneContainer").style.display = "none";
             } else {
                 document.getElementById("patientPhone").textContent = booking.patientPhone || "-";
@@ -120,6 +119,11 @@
 
             document.getElementById("driverName").textContent = booking.driver || "-";
             document.getElementById("driverPhone").textContent = booking.driverPhone || "-";
+
+            // Display driver image, fallback to placeholder if not available
+            const photo = document.getElementById("driverPhoto");
+            photo.src = booking.driverImage || "https://via.placeholder.com/80?text=Driver";
+
             document.getElementById("ambulance").textContent = booking.vehicle || "-";
         } else {
             document.querySelector(".confirmed-container").innerHTML = `

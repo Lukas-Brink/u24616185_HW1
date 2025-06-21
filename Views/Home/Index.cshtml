@@ -61,18 +61,20 @@
         // Build SOS booking using the full booking model
         const sosBooking = {
             id: crypto.randomUUID(),
-            fullName: "SOS Patient",                // Placeholder name
-            patientPhone: "",                       // No patient phone
-            phone: randomDriver.PhoneNumber,       // Driver's phone (or you can leave empty if preferred)
-            pickupTime: now.toTimeString().slice(0, 5),  // HH:mm format
+            fullName: "SOS Patient",
+            patientPhone: "",
+            phone: randomDriver.PhoneNumber,
+            pickupTime: now.toTimeString().slice(0, 5),
             pickupAddress: "Emergency SOS Location",
             reason: "Emergency SOS",
             vehicle: randomVehicle.Type + " - " + randomVehicle.RegistrationNumber,
             driver: randomDriver.FirstName + " " + randomDriver.LastName,
             driverPhone: randomDriver.PhoneNumber,
+            driverImage: randomDriver.ImageUrl, // ✅ add this line
             dateBooked: now.toLocaleString(),
-            isSOS: true                            // Mark this as SOS
+            isSOS: true
         };
+
 
         // Save latest booking for confirmation page
         localStorage.setItem("latestBooking", JSON.stringify(sosBooking));
